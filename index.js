@@ -1,63 +1,110 @@
-const dotenv = require('dotenv');
+const dotenv = require("dotenv");
 dotenv.config();
 
-const { prefix }= require('./config.json')
-const Discord = require('discord.js');
+const fs = require("fs");
+const { prefix } = require("./config.json");
+const Discord = require("discord.js");
 const client = new Discord.Client();
+client.commands = new Discord.Collection();
+client.cooldowns = new Discord.Collection();
 
-client.once('ready', () => {
-	console.log('Ready!');
+const commandFolders = fs.readdirSync("./commands");
+
+for (const folder of commandFolders) {
+  const commandFiles = fs
+    .readdirSync(`./commands/${folder}`)
+    .filter((file) => file.endsWith(".js"));
+  for (const file of commandFiles) {
+    const command = require(`./commands/${folder}/${file}`);
+    client.commands.set(command.name, command);
+  }
+}
+
+client.once("ready", () => {
+  console.log("Ready!");
 });
 
-client.on('message', message => {
-  if (!message.content.startsWith(`${prefix}`) || message.author.bot) return
+client.on("message", (message) => {
+  if (!message.content.startsWith(`${prefix}`) || message.author.bot) return;
 
-  const args = message.content.slice(prefix.length).trim().split(/ +/)
-  const command = args.shift().toLowerCase()
+  const args = message.content.slice(prefix.length).trim().split(/ +/);
+  const commandName = args.shift().toLowerCase();
 
-  if (command === 'tki?') {
-    message.channel.send('toi t ki?')
-  } else if (command === 'tcon?') {
-    message.channel.send("Moi non mais Sacha oui. C'est pas la moitie d'un con je peux te le dire")
-  } else if (command === 'pyramide') {
-    message.channel.send("Let's go")
-    message.channel.send('?')
-    message.channel.send('??')
-    message.channel.send('???')
-    message.channel.send('??')
-    message.channel.send('?')
-    message.channel.send("J'ai la flemme de faire plus ok!")
-  } else if (command === 'server') {
-    message.channel.send(`${message.guild.name} Member: ${message.guild.memberCount}`)
-  } else if (command === 'args-info') {
-    if (!args.length) {
-      return message.channel.send(`No arguments ${message.author.username}`)
-    } else if (args[0] == 'foo') {
-      message.channel.send('bar')
-    }
-    message.channel.send(`Command: ${command} Arguments: ${args}`)
-  } else if (command === 'kick') {
-    const taggedUser = message.mentions.users.first()
-
-    if (!taggedUser) {
-      return message.reply('You must tag an user in order to kick them')
-    }
-
-    message.channel.send(`You want to kick this son of a dog? ${taggedUser.username}`)
-  } else if (command === 'avatar') {
-    const taggedUser = message.mentions.users.first()
-
-    if (!taggedUser) {
-      return message.reply('You must tag an user in order to kick them')
-    }
-
-    message.channel.send(`Your avatar: <${message.author.displayAvatarURL({ format: 'gif', dynamic: true})}>`)
-
+  if (!client.commands.has(commandName)) {
+    return message.reply("We don't have this command!");
   }
 
+  const command = client.commands.get(commandName);
+
+  if (command.guildOnly && message.channel.type === "dm") {
+    return message.reply("I can't execute that command here!");
+  }
+
+  if (command.args && !args.length) {
+    let reply = `You didn't provide any arguments, ${message.author}!`;
+
+    if (command.usage) {
+      reply += `\nThe proper usage would be: \`${prefix}${command.name} ${command.usage}\``;
+    }
+
+    return message.reply(reply);
+  }
+
+  // Problems: I can't get back the command from the cooldowns collections
+  // See the various comments to see my test
+
+  if (command.cooldown) {
+    // destructuring of the cooldown collection from the client object
+    // instead of calling client.cooldowns each time
+    const { cooldowns } = client;
+
+    if (!cooldowns.has(command.name)) {
+      cooldowns.set(command.name, new Discord.Collection());
+    }
+
+    console.log("cooldowns", cooldowns);
+    const now = Date.now();
+
+    // using the name property from the command object
+    // e.g. command.name: return the name of the command
+    console.log(command.name);
+
+    // geting back the command info from the cooldowns collection
+    // with command.name
+    console.log(cooldowns.get(command.name));
+    // with hard coded string
+    console.log(cooldowns.get("tki?"));
+
+    // This collection is empty because I can't get the
+    // command back from the cooldowns collection
+    const timestamps = cooldowns.get(command.name);
+    console.log("timestamp", timestamps);
+
+    const cooldownAmount = (command.cooldown || 3) * 1000;
+
+    if (timestamps.has(message.author.id)) {
+      const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
+
+      if (now < expirationTime) {
+        const timeLeft = (expirationTime - now) / 1000;
+        return message.reply(
+          `please wait ${timeLeft.toFixed(
+            1
+          )} more second(s) before reusing the \`${command.name}\` command.`
+        );
+      }
+    }
+  }
+
+  try {
+    command.execute(message, args, commandName);
+  } catch (error) {
+    console.log(error);
+    message.reply("An error occured! Please try again");
+  }
   // if (message.author.id === '279999507327090689') {
   //   message.channel.send(`Salut ${message.author.username}`)
   // }
-})
+});
 
 client.login(process.env.TOKEN);
