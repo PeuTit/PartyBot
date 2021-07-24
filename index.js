@@ -44,6 +44,13 @@ client.on("message", (message) => {
     return message.reply("I can't execute that command here!");
   }
 
+  if (command.permissions) {
+    const authorParams = message.channel.permissionsFor(message.author);
+    if (!authorParams || authorParams.has(command.permissions)) {
+      return message.reply("You can't do that!");
+    }
+  }
+
   if (command.args && !args.length) {
     let reply = `You didn't provide any arguments, ${message.author}!`;
 
