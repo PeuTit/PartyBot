@@ -7,7 +7,6 @@ const Discord = require("discord.js");
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
 client.cooldowns = new Discord.Collection();
-console.log("start of the programs");
 
 const commandFolders = fs.readdirSync("./commands");
 
@@ -31,11 +30,15 @@ client.on("message", (message) => {
   const args = message.content.slice(prefix.length).trim().split(/ +/);
   const commandName = args.shift().toLowerCase();
 
-  if (!client.commands.has(commandName)) {
+  const command =
+    client.commands.get(commandName) ||
+    client.commands.find(
+      (cmd) => cmd.aliases && cmd.aliases.includes(commandName)
+    );
+
+  if (!command) {
     return message.reply("We don't have this command!");
   }
-
-  const command = client.commands.get(commandName);
 
   if (command.guildOnly && message.channel.type === "dm") {
     return message.reply("I can't execute that command here!");
