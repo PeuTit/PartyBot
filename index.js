@@ -7,6 +7,7 @@ const Discord = require("discord.js");
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
 client.cooldowns = new Discord.Collection();
+console.log("start of the programs");
 
 const commandFolders = fs.readdirSync("./commands");
 
@@ -50,51 +51,54 @@ client.on("message", (message) => {
     return message.reply(reply);
   }
 
+  // Cooldowns feature
   // Problems: I can't get back the command from the cooldowns collections
   // See the various comments to see my test
 
-  if (command.cooldown) {
-    // destructuring of the cooldown collection from the client object
-    // instead of calling client.cooldowns each time
-    const { cooldowns } = client;
+  // if (command.cooldown) {
+  //   // destructuring of the cooldown collection from the client object
+  //   // instead of calling client.cooldowns each time
+  //   const { cooldowns } = client;
 
-    if (!cooldowns.has(command.name)) {
-      cooldowns.set(command.name, new Discord.Collection());
-    }
+  //   if (!cooldowns.has(command.name)) {
+  //     cooldowns.set(command.name, new Discord.Collection());
+  //   }
 
-    console.log("cooldowns", cooldowns);
-    const now = Date.now();
+  //   console.log("cooldowns", cooldowns);
+  //   const now = Date.now();
 
-    // using the name property from the command object
-    // e.g. command.name: return the name of the command
-    console.log(command.name);
+  //   // using the name property from the command object
+  //   // e.g. command.name: return the name of the command
+  //   console.log(command.name);
 
-    // geting back the command info from the cooldowns collection
-    // with command.name
-    console.log(cooldowns.get(command.name));
-    // with hard coded string
-    console.log(cooldowns.get("tki?"));
+  //   // geting back the command info from the cooldowns collection
+  //   // with command.name
+  //   console.log(cooldowns.get(command.name));
+  //   // with hard coded string
+  //   console.log(cooldowns.get("tki?"));
 
-    // This collection is empty because I can't get the
-    // command back from the cooldowns collection
-    const timestamps = cooldowns.get(command.name);
-    console.log("timestamp", timestamps);
+  //   // This collection is empty because I can't get the
+  //   // command back from the cooldowns collection
+  //   const timestamps = cooldowns.get(command.name);
+  //   console.log("timestamp", timestamps);
 
-    const cooldownAmount = (command.cooldown || 3) * 1000;
+  //   const cooldownAmount = command.cooldown * 1000;
 
-    if (timestamps.has(message.author.id)) {
-      const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
+  //   if (timestamps.has(message.author.id)) {
+  //     const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
 
-      if (now < expirationTime) {
-        const timeLeft = (expirationTime - now) / 1000;
-        return message.reply(
-          `please wait ${timeLeft.toFixed(
-            1
-          )} more second(s) before reusing the \`${command.name}\` command.`
-        );
-      }
-    }
-  }
+  //     if (now < expirationTime) {
+  //       const timeLeft = (expirationTime - now) / 1000;
+  //       return message.reply(
+  //         `please wait ${timeLeft.toFixed(
+  //           1
+  //         )} more second(s) before reusing the \`${command.name}\` command.`
+  //       );
+  //     }
+  //   }
+
+  //   console.log("Cooldowns end", cooldowns);
+  // }
 
   try {
     command.execute(message, args, commandName);
