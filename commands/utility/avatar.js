@@ -1,7 +1,9 @@
 module.exports = {
   name: "avatar",
+  usage: "<user>",
   aliases: ["icon", "pfp"],
   description: "Show the avatar picture of a user (or a list of users)!",
+  // TODO: Refactor using args
   execute(message) {
     if (!message.mentions.users.size) {
       return message.channel.send(
