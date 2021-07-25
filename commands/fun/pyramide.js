@@ -1,7 +1,7 @@
 module.exports = {
   name: "pyramide",
   description: "Create a pyramide",
-  usage: "command <user> <size>",
+  usage: "<user> <size>",
   args: true,
   execute(message, args) {
     const data = [];
