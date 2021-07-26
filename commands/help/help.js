@@ -38,21 +38,38 @@ module.exports = {
       return message.reply("We don't have this command!");
     }
 
-    data.push(`**Name:** ${command.name}`);
+    // inside a command, event listener, etc.
+    const exampleEmbed = {
+      color: 0x0099ff,
+      title: command.name,
+      author: {
+        name: message.client.user.tag,
+      },
+      fields: [],
+    };
 
-    if (command.aliases) {
-      data.push(`**Aliases:** ${command.aliases.join(", ")}`);
-    }
     if (command.description) {
-      data.push(`**Description:** ${command.description}`);
+      exampleEmbed.description = command.description;
+    }
+    if (command.aliases) {
+      exampleEmbed.fields.push({
+        name: "Aliases",
+        value: command.aliases.join(", "),
+      });
     }
     if (command.usage) {
-      data.push(`**Usage:** ${prefix}${command.name} ${command.usage}`);
+      exampleEmbed.fields.push({
+        name: "Usage",
+        value: `${prefix}${command.name} ${command.usage}`,
+      });
     }
     if (command.cooldown) {
-      data.push(`**Cooldown:** ${command.cooldown} seconds`);
+      exampleEmbed.fields.push({
+        name: "Cooldown",
+        value: command.cooldown,
+      });
     }
 
-    message.channel.send(data, { split: true });
+    message.channel.send({ embed: exampleEmbed });
   },
 };
