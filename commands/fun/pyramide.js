@@ -11,11 +11,15 @@ module.exports = {
       return message.reply("You need to tag an user!");
     }
 
+    if (!args[1]) {
+      args[1] = defaultSize;
+    }
+
     if (isNaN(args[1])) {
       return message.reply("This is not a number!");
     }
 
-    const pyramideSize = args[1] || defaultSize;
+    const pyramideSize = args[1];
 
     for (let index = 1; index < pyramideSize; index++) {
       data.push(args[0].repeat(index));
