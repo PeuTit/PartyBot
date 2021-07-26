@@ -2,30 +2,13 @@ const { prefix } = require("../../config.json");
 
 module.exports = {
   name: "help",
-  aliases: ["commands"],
-  description: "List of all of the bot commands or info about a specific one",
+  description: "Info about a specific command",
   usage: "<command>",
   execute(message, args) {
-    const data = [];
     const { commands } = message.client;
 
     if (!args.length) {
-      data.push("Here's the list of all my commands:");
-      data.push(commands.map((command) => command.name).join(", "));
-      data.push(
-        `You can send ${prefix}${this.name} ${this.usage} to get info on a specific command`
-      );
-
-      return message.author
-        .send(data, { split: true })
-        .then(() => {
-          if (message.channel.type === "dm") return;
-          message.reply("I have sent you a DM");
-        })
-        .catch((error) => {
-          console.log(error);
-          message.reply("I can't send you a DM! Have you disabled them?");
-        });
+      return message.reply("You need to specify a command!");
     }
 
     const commandName = args[0].toLowerCase();
@@ -39,37 +22,34 @@ module.exports = {
     }
 
     // inside a command, event listener, etc.
-    const exampleEmbed = {
+    const embedMessage = {
       color: 0x0099ff,
       title: command.name,
-      author: {
-        name: message.client.user.tag,
-      },
       fields: [],
     };
 
     if (command.description) {
-      exampleEmbed.description = command.description;
+      embedMessage.description = command.description;
     }
     if (command.aliases) {
-      exampleEmbed.fields.push({
+      embedMessage.fields.push({
         name: "Aliases",
         value: command.aliases.join(", "),
       });
     }
     if (command.usage) {
-      exampleEmbed.fields.push({
+      embedMessage.fields.push({
         name: "Usage",
         value: `${prefix}${command.name} ${command.usage}`,
       });
     }
     if (command.cooldown) {
-      exampleEmbed.fields.push({
+      embedMessage.fields.push({
         name: "Cooldown",
         value: command.cooldown,
       });
     }
 
-    message.channel.send({ embed: exampleEmbed });
+    message.channel.send({ embed: embedMessage });
   },
 };
