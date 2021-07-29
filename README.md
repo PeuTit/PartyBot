@@ -9,10 +9,10 @@ I followed their guide to get to this results.
 
 Start by installing the dependencies:
   
-  npm install
+    npm install
   
 Then run the bot:
 
-  npm run start
+    npm run start
   
 You can also user `pm2` to start, stop, restart, watch changes and monitor the bot.
