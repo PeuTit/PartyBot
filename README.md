@@ -29,3 +29,7 @@ Then run the bot:
 You can also user `pm2` to start, stop, restart, watch changes and monitor the bot.
 
 Don't forget to create an .env file a the root of the repo with your credentials!
+Just copy the `.env.exemple` and rename it `.env`. You only need to populate the secret_id field.
+You can find this id in your developer portal on discord.
+
+https://discord.com/developers/
