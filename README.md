@@ -1,9 +1,11 @@
-# discord-first-bot
+# Party Bot
 
 My first discord bot in javascript!
 
 This first bot was developed using the discord.js library. 
 I followed their guide to get to this results.
+You can check their guide here:
+https://discordjs.guide/
 
 Prefix: %
 
@@ -25,3 +27,5 @@ Then run the bot:
     npm run start
   
 You can also user `pm2` to start, stop, restart, watch changes and monitor the bot.
+
+Don't forget to create an .env file a the root of the repo with your credentials!
